@@ -2,8 +2,14 @@ package ru.alexanderdv.citysimulator;
 
 import java.awt.Point;
 import java.util.ArrayList;
-import java.util.Properties;
 
+import ru.alexanderdv.citysimulator.Main.Work;
+
+/**
+ * 
+ * @author AlexanderDV
+ * @version 0.0.5a
+ */
 public class Citizen
 {
 	public final Long id;
@@ -28,7 +34,7 @@ public class Citizen
 		this.curProps = bornProps;
 		this.info = new CitizenInfo();
 
-		 this.info.surname = Main.getSurname("ru", curProps.physicalGender);
+		this.info.surname = Main.getSurname("ru", curProps.physicalGender);
 		this.info.name = Main.getName("ru", curProps.physicalGender);
 
 		rightLeg = new Leg();
@@ -80,16 +86,31 @@ public class Citizen
 	Kidneys kidneys;
 	Liver liver;
 
+	/**
+	 * 
+	 * @author AlexanderDV
+	 * @version 0.0.5a
+	 */
 	static abstract class PartOfOrganism
 	{
 		public abstract boolean isNotIll();
 	}
 
+	/**
+	 * 
+	 * @author AlexanderDV
+	 * @version 0.0.5a
+	 */
 	static abstract class Organ extends PartOfOrganism
 	{
 		boolean injury;
 	}
 
+	/**
+	 * 
+	 * @author AlexanderDV
+	 * @version 0.0.5a
+	 */
 	static class Eye extends Organ
 	{
 
@@ -100,6 +121,11 @@ public class Citizen
 		}
 	}
 
+	/**
+	 * 
+	 * @author AlexanderDV
+	 * @version 0.0.5a
+	 */
 	static class Ear extends Organ
 	{
 
@@ -110,6 +136,11 @@ public class Citizen
 		}
 	}
 
+	/**
+	 * 
+	 * @author AlexanderDV
+	 * @version 0.0.5a
+	 */
 	static class MouthThroatAndTongue extends Organ
 	{
 
@@ -120,6 +151,11 @@ public class Citizen
 		}
 	}
 
+	/**
+	 * 
+	 * @author AlexanderDV
+	 * @version 0.0.5a
+	 */
 	static class Nose extends Organ
 	{
 
@@ -130,6 +166,11 @@ public class Citizen
 		}
 	}
 
+	/**
+	 * 
+	 * @author AlexanderDV
+	 * @version 0.0.5a
+	 */
 	static class Heart extends Organ
 	{
 
@@ -140,6 +181,11 @@ public class Citizen
 		}
 	}
 
+	/**
+	 * 
+	 * @author AlexanderDV
+	 * @version 0.0.5a
+	 */
 	static class Lungs extends Organ
 	{
 
@@ -150,6 +196,11 @@ public class Citizen
 		}
 	}
 
+	/**
+	 * 
+	 * @author AlexanderDV
+	 * @version 0.0.5a
+	 */
 	static class Liver extends Organ
 	{
 
@@ -160,6 +211,11 @@ public class Citizen
 		}
 	}
 
+	/**
+	 * 
+	 * @author AlexanderDV
+	 * @version 0.0.5a
+	 */
 	static class Kidneys extends Organ
 	{
 
@@ -170,11 +226,21 @@ public class Citizen
 		}
 	}
 
+	/**
+	 * 
+	 * @author AlexanderDV
+	 * @version 0.0.5a
+	 */
 	static abstract class PartOfBody extends PartOfOrganism
 	{
 		boolean bleeding;
 	}
 
+	/**
+	 * 
+	 * @author AlexanderDV
+	 * @version 0.0.5a
+	 */
 	static abstract class Limb extends PartOfBody
 	{
 		boolean broken;
@@ -186,14 +252,29 @@ public class Citizen
 		}
 	}
 
+	/**
+	 * 
+	 * @author AlexanderDV
+	 * @version 0.0.5a
+	 */
 	static class Leg extends Limb
 	{
 	}
 
+	/**
+	 * 
+	 * @author AlexanderDV
+	 * @version 0.0.5a
+	 */
 	static class Arm extends Limb
 	{
 	}
 
+	/**
+	 * 
+	 * @author AlexanderDV
+	 * @version 0.0.5a
+	 */
 	static class Neck extends PartOfBody
 	{
 		boolean broken;
@@ -205,6 +286,11 @@ public class Citizen
 		}
 	}
 
+	/**
+	 * 
+	 * @author AlexanderDV
+	 * @version 0.0.5a
+	 */
 	static class Head extends PartOfBody
 	{
 		boolean concussion;
@@ -216,6 +302,11 @@ public class Citizen
 		}
 	}
 
+	/**
+	 * 
+	 * @author AlexanderDV
+	 * @version 0.0.5a
+	 */
 	static class Chest extends PartOfBody
 	{
 		boolean ribsBroken;
@@ -227,6 +318,11 @@ public class Citizen
 		}
 	}
 
+	/**
+	 * 
+	 * @author AlexanderDV
+	 * @version 0.0.5a
+	 */
 	static class Stomach extends PartOfBody
 	{
 		@Override
@@ -285,7 +381,7 @@ public class Citizen
 					Citizen ctz = new Citizen(Main.ins.citizens.size() + citizens.size(), id, info.pair, dna,
 							Main.time);
 					String pairSurname = Main.ins.citizens.get(info.pair).citizen.info.surname;
-					int coef2 = surnameCoef + Main.ins.citizens.get(info.pair).citizen.surnameCoef+2;
+					int coef2 = surnameCoef + Main.ins.citizens.get(info.pair).citizen.surnameCoef + 2;
 					if (coef2 < -1)
 						ctz.info.surname = info.surname;
 					else if (coef2 != -1 && coef2 != 0 && coef2 != +1)
@@ -332,8 +428,8 @@ public class Citizen
 				+ ", born=" + born + ", bornProps=" + bornProps + ", x=" + x + ", y=" + y + ", z=" + z + ", info="
 				+ info + ", curProps=" + curProps + ", death=" + death + ", fertileAge=" + fertileAge
 				+ ", defertileAge=" + defertileAge + ", canBeFertile=" + canBeFertile + ", fertile=" + fertile
-				+ ", rand=" + rand + ", deathCause=" + deathCause + ", timeOfOld=" + timeOfOld + ", nextOldDeathCheck="
-				+ nextOldDeathCheck + ", ind=" + ind + ", toReset=" + toReset + "]";
+				+ ", target=" + target + ", deathCause=" + deathCause + ", timeOfOld=" + timeOfOld
+				+ ", nextOldDeathCheck=" + nextOldDeathCheck + ", ind=" + ind + "]";
 	}
 
 	public boolean canConceive()
@@ -364,7 +460,7 @@ public class Citizen
 				&& canBeFertile && fertile;
 	}
 
-	Point rand;
+	Point target;
 	String deathCause;
 	int timeOfOld = Main.random.nextInt(60) + 30;
 	double nextOldDeathCheck = 0;
@@ -389,67 +485,71 @@ public class Citizen
 			}
 		if (!isDead())
 		{
+			for (Work work : works)
+				for (Point p : work.points.keySet())
+					for (Integer time : work.points.get(p).keySet())
+						if (work.points.get(p).get(time) == id)
+							if ((int) Main.getHour() == time)
+								if (target != null ? target.x != p.x || target.y != p.y : true)
+								{
+									target = p;
+									ind = 0;
+								}
+			if (home != null)
+				for (Point p : home.points.keySet())
+					for (Integer time : home.points.get(p).keySet())
+						if (home.points.get(p).get(time) == id)
+							if ((int) Main.getHour() == time)
+								if (target != null ? target.x != p.x || target.y != p.y : true)
+								{
+									target = p;
+									ind = 0;
+								}
+		}
+		if (!isDead())
+		{
 			for (int i = (int) msInUnit + 1; i > 0;)
 			{
-				int decr;
-				if (curPath != null && pathStart != null ? !Main.pathsMatch(curPath, Main.ins.getPath(pathStart, rand))
+				if (curPath != null && pathStart != null
+						? !Main.pathsMatch(curPath, Main.ins.getPath(pathStart, target))
 						: true)
 				{
 					Point curPoint = new Point((int) x, (int) z);
-					curPath = Main.ins.getPath(curPoint, rand);
+					curPath = Main.ins.getPath(curPoint, target);
 					pathStart = curPoint;
 					ind = 0;
 				}
-				else curPath = Main.ins.getPath(pathStart, rand);
-				if (toReset == -1)
+				else curPath = Main.ins.getPath(pathStart, target);
+
+				if (curPath != null ? ind + 1 < curPath.length : false)
 				{
-					if (ind + 1 < curPath.length)
-					{
-						double xo = Math.min(Math.abs(curPath[ind + 1].x - x), i * getSpeed() / 1000d)
-								* (curPath[ind + 1].x - x < 0 ? -1 : 1);
-						double zo = Math.min(Math.abs(curPath[ind + 1].y - z), i * getSpeed() / 1000d)
-								* (curPath[ind + 1].y - z < 0 ? -1 : 1);
+					double xo = Math.min(Math.abs(curPath[ind + 1].x - x), i * getSpeed() / 1000d)
+							* (curPath[ind + 1].x - x < 0 ? -1 : 1);
+					double zo = Math.min(Math.abs(curPath[ind + 1].y - z), i * getSpeed() / 1000d)
+							* (curPath[ind + 1].y - z < 0 ? -1 : 1);
 
-						if (canWalk())
-						{
-							x += xo;
-							z += zo;
-
-							if (Math.round(x * 1000) / 1000d == curPath[ind + 1].x)
-								if (Math.round(z * 1000) / 1000d == curPath[ind + 1].y)
-								{
-									x = Math.round(x * 1000) / 1000d;
-									z = Math.round(z * 1000) / 1000d;
-									ind++;
-								}
-						}
-						decr = (int) Math.abs((xo + zo) * 1000d / getSpeed());
-					}
-					else
+					if (canWalk())
 					{
-						if (rand.x == x && rand.y == z)
-							toReset = Main.random.nextInt(1000 * 60);
-						decr = 1;
+						x += xo;
+						z += zo;
+
+						if (Math.round(x * 1000) / 1000d == curPath[ind + 1].x)
+							if (Math.round(z * 1000) / 1000d == curPath[ind + 1].y)
+							{
+								x = Math.round(x * 1000) / 1000d;
+								z = Math.round(z * 1000) / 1000d;
+								ind++;
+							}
 					}
+					i -= (int) Math.abs((xo + zo) * 1000d / getSpeed());
 				}
-				else if (toReset == 0)
-				{
-					if (Main.ins.goToRandomPoint)
-					{
-						toReset = -1;
-						ind = 0;
-						rand = new Point(Main.random.nextInt(Main.ins.maxX - Main.ins.minX) + Main.ins.minX,
-								Main.random.nextInt(Main.ins.maxZ - Main.ins.minZ) + Main.ins.minZ);
-						decr = 1;
-					}
-					else decr = i;
-				}
-				else toReset -= (decr = Math.min(i, toReset));
-
-				i -= decr;
+				else break;
 			}
 		}
 	}
+
+	final ArrayList<Work> works = new ArrayList<Work>();
+	Work home;
 
 	double _speed = (1 + Main.random.nextInt(40) / 10d) / 3.6;
 
@@ -467,5 +567,4 @@ public class Citizen
 	}
 
 	int ind;
-	int toReset = 0;
 }

@@ -2,6 +2,11 @@ package ru.alexanderdv.citysimulator;
 
 import java.util.HashMap;
 
+/**
+ * 
+ * @author AlexanderDV
+ * @version 0.0.5a
+ */
 public class PointD
 {
 	private static final HashMap<Double, HashMap<Double, PointD>> points = new HashMap<Double, HashMap<Double, PointD>>();

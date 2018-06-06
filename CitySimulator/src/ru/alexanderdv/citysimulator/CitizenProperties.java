@@ -1,5 +1,10 @@
 package ru.alexanderdv.citysimulator;
 
+/**
+ * 
+ * @author AlexanderDV
+ * @version 0.0.5a
+ */
 public class CitizenProperties
 {
 	final Gender physicalGender;

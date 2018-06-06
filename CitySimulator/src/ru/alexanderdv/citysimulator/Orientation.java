@@ -1,5 +1,10 @@
 package ru.alexanderdv.citysimulator;
 
+/**
+ * 
+ * @author AlexanderDV
+ * @version 0.0.5a
+ */
 public enum Orientation
 {
 	HeterosexualD,

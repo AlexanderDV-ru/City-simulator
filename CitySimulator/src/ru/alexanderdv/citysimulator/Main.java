@@ -3,6 +3,7 @@ package ru.alexanderdv.citysimulator;
 import java.awt.Point;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -32,10 +33,19 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import ru.alexanderdv.simpleutilities.MessageUtils;
 
+import java.util.HashMap;
+
+/**
+ * 
+ * @author AlexanderDV
+ * @version 0.0.5a
+ */
 public class Main extends Application
 {
-	public static final Random random = new Random();;
+	public static final Random random = new Random();
+	public static final MessageUtils msgUtils = new MessageUtils("en_uk");
 
 	private Pane pane;
 	private VBox toolsVBox;
@@ -72,7 +82,6 @@ public class Main extends Application
 	}
 
 	static Main ins;
-	boolean goToRandomPoint = false;
 
 	@Override
 	public void start(Stage mainStage) throws Exception
@@ -232,8 +241,7 @@ public class Main extends Application
 						System.out.println(citizens.get(Long.parseLong(args[1])).citizen);
 						break;
 					case "setpath":
-						citizens.get(Long.parseLong(args[1])).citizen.toReset = -2;
-						citizens.get(Long.parseLong(args[1])).citizen.rand = new Point(Integer.parseInt(args[2]),
+						citizens.get(Long.parseLong(args[1])).citizen.target = new Point(Integer.parseInt(args[2]),
 								Integer.parseInt(args[3]));
 						break;
 				}
@@ -330,7 +338,11 @@ public class Main extends Application
 		new Timer(1000 / 60, e -> updateGraphics()).start();
 		new Timer(500, e -> updateConsole()).start();
 		stage.show();
-		new Thread(() -> initPairs()).start();
+		new Thread(() ->
+		{
+			initPairs();
+			initWorks();
+		}).start();
 		new Thread(() -> new Timer(1,
 				e -> simulateTimeUnit((-lt + (lt = Calendar.getInstance().getTimeInMillis())) * speed)).start())
 						.start();
@@ -542,6 +554,10 @@ public class Main extends Application
 						fillRect(x, z, 1, 1);
 					}
 				}
+			mapGraphics.setFill(Color.YELLOW);
+			for (Work work : works)
+				for (Point point : work.points.keySet())
+					fillRect(point.x, point.y, 1, 1);
 
 			mapGraphics.setFill(Color.SEAGREEN);
 			for (AbstractCitizen AbstractCitizen : citizens.values())
@@ -550,12 +566,12 @@ public class Main extends Application
 					if (AbstractCitizen.citizen.curPath != null)
 						for (Point point : AbstractCitizen.citizen.curPath)
 							fillRect(point.x, point.y, 1, 1);
-						mapGraphics.setFill(Color.RED);
+			mapGraphics.setFill(Color.RED);
 			for (AbstractCitizen AbstractCitizen : citizens.values())
 				if (showAllPaths.isSelected()
 						|| (showPath.isSelected() && AbstractCitizen.citizen.id == selectedCitizen))
-					if (AbstractCitizen.citizen.rand != null)
-						fillRect(AbstractCitizen.citizen.rand.x, AbstractCitizen.citizen.rand.y, 1, 1);
+					if (AbstractCitizen.citizen.target != null)
+						fillRect(AbstractCitizen.citizen.target.x, AbstractCitizen.citizen.target.y, 1, 1);
 
 			mapGraphics.setFill(Color.BLACK);
 			for (AbstractCitizen AbstractCitizen : citizens.values())
@@ -602,6 +618,44 @@ public class Main extends Application
 		});
 	}
 
+	ArrayList<Work> works = new ArrayList<Work>();
+
+	ArrayList<Work> homes = new ArrayList<Work>();
+
+	private synchronized void initWorks()
+	{
+		for (int i = 0; i < random.nextInt(30) + 60; i++)
+			works.add(new Work(5));
+		for (AbstractCitizen absCtz : citizens.values())
+		{
+			Work w = works.get(random.nextInt(works.size()));
+			for (Point p : w.points.keySet())
+				if (!w.points.get(p).containsKey(8))
+				{
+					for (int r = 8; r < 16; r++)
+						w.points.get(p).put(r, absCtz.id);
+					break;
+				}
+			absCtz.citizen.works.add(w);
+		}
+		
+
+		for (int i = 0; i < random.nextInt(30) + 60; i++)
+			homes.add(new Work(20));
+		for (AbstractCitizen absCtz : citizens.values())
+		{
+			Work w = homes.get(random.nextInt(homes.size()));
+			for (Point p : w.points.keySet())
+				if (!w.points.get(p).containsKey(20))
+				{
+					for (int r = 20; r < hoursInDay+6; r++)
+						w.points.get(p).put((int) (r%hoursInDay), absCtz.id);
+					break;
+				}
+			absCtz.citizen.home = w;
+		}
+	}
+
 	private synchronized void initPairs()
 	{
 		for (int i = 0; i < 20; i++)
@@ -625,32 +679,34 @@ public class Main extends Application
 								&& time - absCtz2.citizen.born >= secondsInMinute * minutesInHour * hoursInDay
 										* daysInMonth * monthsInSeason * seasonsInYear * 18
 								&& absCtz2.citizen.info.pair == -1)
-						{
-							Citizen ct1 = absCtz.citizen;
-							CitizenProperties props1 = ct1.curProps;
-							Citizen ct2 = absCtz2.citizen;
-							CitizenProperties props2 = ct2.curProps;
-							if (props1.physicalGender != props2.physicalGender)
-								if (random
-										.nextInt((int) (Math.abs(ct1.born - ct2.born) / secondsInMinute / minutesInHour
-												/ hoursInDay / daysInMonth / monthsInSeason / seasonsInYear * 50)
-												+ 1) == 0)
-								{
-									HistocompatibilityProtein[] hcps1 = props1.histocompatibilityProteins;
-									HistocompatibilityProtein[] hcps2 = props2.histocompatibilityProteins;
-									if (random.nextInt(hcps1[0] != hcps2[0] ? 2 : 4) == 0)
-										if (random.nextInt(hcps1[1] != hcps2[1] ? 2 : 4) == 0)
-											if (random.nextInt(hcps1[2] != hcps2[2] ? 2 : 4) == 0)
-												if (random.nextInt(hcps1[3] != hcps2[3] ? 2 : 4) == 0)
-													if (random.nextInt(hcps1[4] != hcps2[4] ? 2 : 4) == 0)
-														if (random.nextInt(hcps1[5] != hcps2[5] ? 2 : 4) == 0)
-														{
-															ct1.info.pair = ct2.id;
-															ct2.info.pair = ct1.id;
-															break;
-														}
-								}
-						}
+							if ((absCtz.bioFather != absCtz2.bioFather || absCtz.bioFather == -1)
+									&& (absCtz.bioMather != absCtz2.bioMather || absCtz.bioMather == -1))
+							{
+								Citizen ct1 = absCtz.citizen;
+								CitizenProperties props1 = ct1.curProps;
+								Citizen ct2 = absCtz2.citizen;
+								CitizenProperties props2 = ct2.curProps;
+								if (props1.physicalGender != props2.physicalGender)
+									if (random.nextInt(
+											(int) (Math.abs(ct1.born - ct2.born) / secondsInMinute / minutesInHour
+													/ hoursInDay / daysInMonth / monthsInSeason / seasonsInYear * 50)
+													+ 1) == 0)
+									{
+										HistocompatibilityProtein[] hcps1 = props1.histocompatibilityProteins;
+										HistocompatibilityProtein[] hcps2 = props2.histocompatibilityProteins;
+										if (random.nextInt(hcps1[0] != hcps2[0] ? 2 : 4) == 0)
+											if (random.nextInt(hcps1[1] != hcps2[1] ? 2 : 4) == 0)
+												if (random.nextInt(hcps1[2] != hcps2[2] ? 2 : 4) == 0)
+													if (random.nextInt(hcps1[3] != hcps2[3] ? 2 : 4) == 0)
+														if (random.nextInt(hcps1[4] != hcps2[4] ? 2 : 4) == 0)
+															if (random.nextInt(hcps1[5] != hcps2[5] ? 2 : 4) == 0)
+															{
+																ct1.info.pair = ct2.id;
+																ct2.info.pair = ct1.id;
+																break;
+															}
+									}
+							}
 			for (AbstractCitizen AbstractCitizen : citizens.values())
 				if (!AbstractCitizen.citizen.isDead())
 					if (AbstractCitizen.citizen.curProps.physicalGender == Gender.Man)
@@ -673,7 +729,6 @@ public class Main extends Application
 			for (AbstractCitizen abstractCitizen : ctzs)
 				citizens.put(new Long(citizens.size()), abstractCitizen);
 		}
-		goToRandomPoint = true;
 	}
 
 	long i, g;
@@ -688,6 +743,23 @@ public class Main extends Application
 
 		for (AbstractCitizen citizen : citizens.values().toArray(new AbstractCitizen[0]))
 			citizen.citizen.simulateTimeUnit(msInUnit);
+	}
+
+	public static class Work
+	{
+		HashMap<Point, HashMap<Integer, Long>> points = new HashMap<Point, HashMap<Integer, Long>>();
+
+		public Work(int size)
+		{
+			Point r = new Point(Main.random.nextInt(Main.ins.maxX - Main.ins.minX) + Main.ins.minX,
+					Main.random.nextInt(Main.ins.maxZ - Main.ins.minZ) + Main.ins.minZ);
+			for (int i = 0; i < size; i++)
+				if (r.y + i < Main.ins.maxZ)
+				{
+					Point p = new Point(r.x, r.y + i);
+					points.put(p, new HashMap<Integer, Long>());
+				}
+		}
 	}
 
 	int ind = 0;
@@ -899,14 +971,22 @@ public class Main extends Application
 			// secondNames.get("ru").put("man", new ArrayList<String>());
 			// secondNames.get("ru").put("woman", new ArrayList<String>());
 
-			for (String line : Files.readAllLines(Paths.get("E:\\ru.surnames"), Charset.forName("UTF-8")))
+			for (String line : Files.readAllLines(
+					Paths.get(Main.class.getClassLoader().getResource("ru.surnames").toURI()),
+					Charset.forName("UTF-8")))
 				surnames.get("ru").get("man").add(line);
-			for (String line : Files.readAllLines(Paths.get("E:\\ru.surnames"), Charset.forName("UTF-8")))
+			for (String line : Files.readAllLines(
+					Paths.get(Main.class.getClassLoader().getResource("ru.surnames").toURI()),
+					Charset.forName("UTF-8")))
 				surnames.get("ru").get("woman").add(line);
 
-			for (String line : Files.readAllLines(Paths.get("E:\\ru.man.names"), Charset.forName("UTF-8")))
+			for (String line : Files.readAllLines(
+					Paths.get(Main.class.getClassLoader().getResource("ru.man.names").toURI()),
+					Charset.forName("UTF-8")))
 				names.get("ru").get("man").add(line);
-			for (String line : Files.readAllLines(Paths.get("E:\\ru.woman.names"), Charset.forName("UTF-8")))
+			for (String line : Files.readAllLines(
+					Paths.get(Main.class.getClassLoader().getResource("ru.woman.names").toURI()),
+					Charset.forName("UTF-8")))
 				names.get("ru").get("woman").add(line);
 			//
 			// for (String line : Files.readAllLines(Paths.get("E:\\ru.man.secondnames"),
@@ -915,6 +995,10 @@ public class Main extends Application
 			// for (String line : Files.readAllLines(Paths.get("E:\\ru.woman.secondnames"),
 			// Charset.forName("UTF-8")))
 			// secondNames.get("ru").get("woman").add(line);
+		}
+		catch (URISyntaxException e)
+		{
+			e.printStackTrace();
 		}
 		catch (IOException e)
 		{
@@ -940,4 +1024,9 @@ public class Main extends Application
 	// Gender.Woman ? "woman" : "man");
 	// return list.get(random.nextInt(list.size()));
 	// }
+
+	public static double getHour()
+	{
+		return time / secondsInMinute / minutesInHour % hoursInDay;
+	}
 }
